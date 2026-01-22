@@ -1,6 +1,11 @@
+/* ---------- AUTH CHECK (CRITICAL) ---------- */
 const authUser = JSON.parse(sessionStorage.getItem("authUser"));
-if (!authUser) window.location.href = "login.html";
 
+if (!authUser) {
+  window.location.replace("login.html");
+}
+
+/* ---------- UI SETUP ---------- */
 document.getElementById("roleTitle").innerText =
   authUser.role === "admin" ? "Admin Dashboard" : "User Dashboard";
 
@@ -9,14 +14,18 @@ const list = document.getElementById("requestList");
 const userSection = document.getElementById("userSection");
 
 let requests = JSON.parse(localStorage.getItem("requests")) || [];
-let logs = JSON.parse(localStorage.getItem("logs")) || [];
 
-if (authUser.role === "admin") userSection.style.display = "none";
+/* Hide user form for admin */
+if (authUser.role === "admin") {
+  userSection.style.display = "none";
+}
 
+/* ---------- SUBMIT REQUEST ---------- */
 form?.addEventListener("submit", e => {
   e.preventDefault();
 
   const orderId = document.getElementById("orderId").value;
+
   if (requests.some(r => r.orderId === orderId)) {
     alert("Duplicate Order ID detected");
     return;
@@ -32,11 +41,11 @@ form?.addEventListener("submit", e => {
   };
 
   requests.push(request);
-  log("REQUEST_SUBMITTED");
   save();
   form.reset();
 });
 
+/* ---------- RENDER REQUESTS ---------- */
 function render() {
   list.innerHTML = "";
 
@@ -45,51 +54,39 @@ function render() {
 
     const li = document.createElement("li");
     li.className = r.status.toLowerCase();
+
     li.innerHTML = `
-      <strong>${r.orderId}</strong> - ${r.reason} - ${r.status}
+      <strong>${r.orderId}</strong> | ${r.reason} | ${r.status}
       ${authUser.role === "admin" && r.status === "Pending"
-        ? `<br><button onclick="approve('${r.id}')">Approve</button>
-           <button onclick="reject('${r.id}')">Reject</button>`
+        ? `<br>
+           <button onclick="updateStatus('${r.id}','Approved')">Approve</button>
+           <button onclick="updateStatus('${r.id}','Rejected')">Reject</button>`
         : ""}
     `;
+
     list.appendChild(li);
   });
 }
 
-function approve(id) {
-  updateStatus(id, "Approved");
-}
-
-function reject(id) {
-  updateStatus(id, "Rejected");
-}
-
+/* ---------- UPDATE STATUS ---------- */
 function updateStatus(id, status) {
-  const r = requests.find(x => x.id === id);
-  if (!r) return;
+  const req = requests.find(r => r.id === id);
+  if (!req) return;
 
-  r.status = status;
-  log(`REQUEST_${status.toUpperCase()}`);
+  req.status = status;
   save();
 }
 
-function log(action) {
-  logs.push({
-    user: authUser.email,
-    action,
-    time: new Date().toISOString()
-  });
-}
-
+/* ---------- SAVE ---------- */
 function save() {
   localStorage.setItem("requests", JSON.stringify(requests));
-  localStorage.setItem("logs", JSON.stringify(logs));
   render();
 }
 
+/* ---------- LOGOUT ---------- */
 function logout() {
   sessionStorage.clear();
-  window.location.href = "login.html";
+  window.location.replace("login.html");
 }
 
 render();

@@ -2,6 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+
+  <!-- IMPORTANT: Prevent browser caching -->
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
   <title>Return & Refund Dashboard</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -13,10 +19,9 @@
   </nav>
 
   <main class="container">
-
     <h3 id="roleTitle"></h3>
 
-    <!-- USER FORM -->
+    <!-- USER SECTION -->
     <section id="userSection">
       <h4>Create Return Request</h4>
       <form id="returnForm">
@@ -27,7 +32,11 @@
           <option>Wrong Item</option>
           <option>Not Needed</option>
         </select>
-        <button type="submit">Submit</button>
+
+        <!-- Supporting evidence (prototype requirement) -->
+        <input type="file" accept="image/*" />
+
+        <button type="submit">Submit Request</button>
       </form>
     </section>
 
@@ -36,7 +45,6 @@
       <h4>Requests</h4>
       <ul id="requestList"></ul>
     </section>
-
   </main>
 
   <script src="js/app.js"></script>

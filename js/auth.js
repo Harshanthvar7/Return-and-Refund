@@ -3,7 +3,9 @@ const users = [
     { email: "admin@test.com", password: "admin123", role: "admin" }
   ];
   
-  document.getElementById("loginForm")?.addEventListener("submit", e => {
+  const form = document.getElementById("loginForm");
+  
+  form?.addEventListener("submit", e => {
     e.preventDefault();
   
     const email = document.getElementById("email").value;
@@ -19,6 +21,6 @@ const users = [
     }
   
     sessionStorage.setItem("authUser", JSON.stringify(user));
-    window.location.href = "index.html";
+    window.location.replace("index.html");
   });
   

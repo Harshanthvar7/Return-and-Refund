@@ -1,24 +1,21 @@
 # Secure Return & Refund Management System
 
-## Description
 A secure, role-based web application for managing product return and refund requests.
 
 ## Features
-- Secure login with role-based access
-- Return request submission
-- Admin approval workflow
-- Fraud prevention (duplicate detection)
-- Audit logs for all actions
+- Secure login with session-based authentication
+- Role-based access (User / Admin)
+- Return request submission with validation
+- Fraud prevention (duplicate order detection)
+- Controlled approval workflow
+- Status tracking (Pending / Approved / Rejected)
 
 ## Demo Credentials
 User: user@test.com / user123  
 Admin: admin@test.com / admin123  
 
-## Tech Stack
-HTML, CSS, JavaScript, GitHub, Netlify
+## Deployment
+Hosted using GitHub and Netlify.
 
-## Security
-- Role-based access control
-- Unique request IDs
-- Audit logging
-- Controlled approval workflow
+## Note
+This is a functional prototype. In production, a centralized encrypted database and backend services would be implemented.
