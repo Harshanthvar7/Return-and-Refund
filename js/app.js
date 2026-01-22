@@ -1,34 +1,57 @@
+/* =========================
+   AUTH & ROLE SETUP
+========================= */
 const authUser = JSON.parse(sessionStorage.getItem("authUser"));
 if (!authUser) location.replace("login.html");
 
-/* ---------- ROLE TITLE ---------- */
-const roleTitle = {
+const roleTitleMap = {
   user: "User Dashboard",
   cs: "Customer Service Dashboard",
   finance: "Finance Admin Dashboard"
 };
-document.getElementById("roleTitle").innerText = roleTitle[authUser.role];
 
-/* ---------- STORAGE ---------- */
+document.getElementById("roleTitle").innerText =
+  roleTitleMap[authUser.role];
+
+/* =========================
+   DATA STORES
+========================= */
 let requests = JSON.parse(localStorage.getItem("requests")) || [];
 let queries = JSON.parse(localStorage.getItem("queries")) || [];
 
-/* ---------- MENU VISIBILITY ---------- */
+/* =========================
+   MENU VISIBILITY
+========================= */
 menuUser.style.display = authUser.role === "user" ? "block" : "none";
 menuCS.style.display = authUser.role === "cs" ? "block" : "none";
 menuFinance.style.display = authUser.role === "finance" ? "block" : "none";
 
-/* ---------- SECTION CONTROL ---------- */
+/* =========================
+   SECTION CONTROL
+========================= */
 function showSection(id) {
-  document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+  document.querySelectorAll(".section").forEach(
+    sec => (sec.style.display = "none")
+  );
   document.getElementById(id).style.display = "block";
 }
 
-showSection(authUser.role === "user" ? "history" : "pendingRequests");
+/* Default landing */
+if (authUser.role === "user") showSection("history");
+if (authUser.role === "cs") showSection("pendingRequests");
+if (authUser.role === "finance") showSection("refundStatus");
 
-/* ---------- CREATE REQUEST ---------- */
+/* =========================
+   USER — CREATE REQUEST
+========================= */
 returnForm?.addEventListener("submit", e => {
   e.preventDefault();
+
+  const file = evidence.files[0];
+  if (!file) {
+    alert("Supporting evidence is required.");
+    return;
+  }
 
   const reader = new FileReader();
   reader.onload = () => {
@@ -43,13 +66,18 @@ returnForm?.addEventListener("submit", e => {
       message: "",
       time: Date.now()
     });
-    save();
+
+    saveAndRender();
     e.target.reset();
   };
-  reader.readAsDataURL(evidence.files[0]);
+
+  reader.readAsDataURL(file);
 });
 
-/* ---------- CUSTOMER QUERY ---------- */
+/* =========================
+   USER — CUSTOMER SUPPORT QUERY
+   (Evidence OPTIONAL)
+========================= */
 queryForm?.addEventListener("submit", e => {
   e.preventDefault();
 
@@ -65,7 +93,8 @@ queryForm?.addEventListener("submit", e => {
       status: "Open",
       time: Date.now()
     });
-    save();
+
+    saveAndRender();
     e.target.reset();
   };
 
@@ -73,23 +102,9 @@ queryForm?.addEventListener("submit", e => {
   else reader.onload();
 });
 
-/* ---------- SORTING LOGIC FOR USER HISTORY ---------- */
-function sortUserRequests(list) {
-  const priority = {
-    Pending: 1,
-    Approved: 2,
-    Rejected: 3
-  };
-
-  return list.sort((a, b) => {
-    if (priority[a.status] !== priority[b.status]) {
-      return priority[a.status] - priority[b.status];
-    }
-    return b.time - a.time; // latest first
-  });
-}
-
-/* ---------- RENDER ---------- */
+/* =========================
+   RENDER ENGINE
+========================= */
 function render() {
   historyList.innerHTML = "";
   pendingList.innerHTML = "";
@@ -100,29 +115,41 @@ function render() {
   pendingList.className = "grid";
   refundList.className = "grid";
 
-  /* ---------- USER HISTORY ---------- */
+  /* ---------- USER VIEW ---------- */
   if (authUser.role === "user") {
-    const userRequests = requests.filter(r => r.user === authUser.email);
-    const sorted = sortUserRequests(userRequests);
+    const priority = { Pending: 1, Reviewed: 2, Approved: 3, Rejected: 4 };
 
-    sorted.forEach(r => {
-      historyList.appendChild(createCard(r));
-    });
+    requests
+      .filter(r => r.user === authUser.email)
+      .sort((a, b) =>
+        priority[a.status] !== priority[b.status]
+          ? priority[a.status] - priority[b.status]
+          : b.time - a.time
+      )
+      .forEach(r => historyList.appendChild(buildCard(r)));
   }
 
-  /* ---------- CS PENDING REQUESTS ---------- */
+  /* ---------- CUSTOMER SERVICE ---------- */
   if (authUser.role === "cs") {
     requests
       .filter(r => r.status === "Pending")
-      .forEach(r => pendingList.appendChild(createCard(r)));
+      .forEach(r => {
+        const card = buildCard(r);
+        card.innerHTML += `
+          <button onclick="markReviewed('${r.id}')">
+            Mark as Reviewed
+          </button>
+        `;
+        pendingList.appendChild(card);
+      });
   }
 
-  /* ---------- FINANCE REVIEWED ---------- */
+  /* ---------- FINANCE ADMIN ---------- */
   if (authUser.role === "finance") {
     requests
       .filter(r => r.status === "Reviewed")
       .forEach(r => {
-        const card = createCard(r);
+        const card = buildCard(r);
         card.innerHTML += `
           <button onclick="approve('${r.id}')">Approve</button>
           <button onclick="reject('${r.id}')">Reject</button>
@@ -146,8 +173,10 @@ function render() {
   });
 }
 
-/* ---------- CARD BUILDER ---------- */
-function createCard(r) {
+/* =========================
+   CARD BUILDER
+========================= */
+function buildCard(r) {
   const card = document.createElement("div");
   card.className = `card ${r.status.toLowerCase()}`;
 
@@ -163,32 +192,53 @@ function createCard(r) {
   return card;
 }
 
-/* ---------- FINANCE ACTIONS ---------- */
+/* =========================
+   WORKFLOW ACTIONS
+========================= */
+function markReviewed(id) {
+  const r = requests.find(x => x.id === id);
+  if (!r) return;
+
+  r.status = "Reviewed";
+  saveAndRender();
+}
+
 function approve(id) {
   const r = requests.find(x => x.id === id);
+  if (!r) return;
+
   r.status = "Approved";
-  r.message = `Refund Initiated for Order #${r.orderId}. Amount will be credited within 5–7 working days.`;
-  save();
+  r.message =
+    `Refund Initiated for Order #${r.orderId}. ` +
+    `The amount will be credited to your bank account within 5–7 working days.`;
+
+  saveAndRender();
 }
 
 function reject(id) {
   const r = requests.find(x => x.id === id);
+  if (!r) return;
+
   r.status = "Rejected";
-  r.message = `Refund request for Order #${r.orderId} was rejected.`;
-  save();
+  r.message =
+    `Refund request for Order #${r.orderId} was rejected after verification.`;
+
+  saveAndRender();
 }
 
-/* ---------- SAVE ---------- */
-function save() {
+/* =========================
+   SAVE & LOGOUT
+========================= */
+function saveAndRender() {
   localStorage.setItem("requests", JSON.stringify(requests));
   localStorage.setItem("queries", JSON.stringify(queries));
   render();
 }
 
-/* ---------- LOGOUT ---------- */
 function logout() {
   sessionStorage.clear();
   location.replace("login.html");
 }
 
+/* INITIAL RENDER */
 render();
