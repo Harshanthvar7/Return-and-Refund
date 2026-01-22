@@ -2,103 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="Cache-Control" content="no-store" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-
-  <title>Return & Refund Dashboard</title>
+  <title>Return & Refund System</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<div class="layout">
+<div class="app">
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
-    <h2>Dashboard</h2>
-    <p id="roleTitle"></p>
+    <div class="sidebar-header">
+      <h2>RRMS</h2>
+      <p class="subtitle">Secure Workflow</p>
+    </div>
 
-    <ul id="menuUser">
-      <li onclick="showSection('create')">➕ Create Request</li>
-      <li onclick="showSection('history')">🕓 Request History</li>
-      <li onclick="showSection('support')">💬 Customer Support</li>
+    <ul class="menu">
+      <li class="active">Dashboard</li>
+      <li>Requests</li>
+      <li>Support</li>
+      <li>Refunds</li>
     </ul>
 
-    <ul id="menuCS">
-      <li onclick="showSection('pendingRequests')">📦 Pending Requests</li>
-      <li onclick="showSection('pendingQueries')">💬 Pending Queries</li>
-      <li onclick="showSection('refundStatus')">📄 Refund Status</li>
-    </ul>
-
-    <ul id="menuFinance">
-      <li onclick="showSection('pendingRequests')">📦 Reviewed Requests</li>
-      <li onclick="showSection('refundStatus')">💰 Refund Actions</li>
-    </ul>
-
-    <button class="logout-btn" onclick="logout()">Logout</button>
+    <button class="logout">Logout</button>
   </aside>
 
   <!-- MAIN CONTENT -->
-  <main class="content">
+  <main class="main">
+    <header class="page-header">
+      <h1>Dashboard</h1>
+      <p>Overview of requests</p>
+    </header>
 
-    <!-- CREATE REQUEST -->
-    <section id="create" class="section">
-      <h3>Create Return Request</h3>
-      <form id="returnForm">
-        <input id="orderId" placeholder="Order ID" required>
-        <select id="reason" required>
-          <option value="">Select Reason</option>
-          <option>Damaged Product</option>
-          <option>Wrong Item</option>
-          <option>Not Needed</option>
-        </select>
-        <textarea id="comment" placeholder="Comment"></textarea>
+    <!-- GRID AREA -->
+    <section class="grid">
+      <!-- SAMPLE CARD -->
+      <div class="card pending">
+        <h3>Order #12345</h3>
+        <p><strong>Status:</strong> Pending</p>
+        <p><strong>Reason:</strong> Damaged Product</p>
+        <img src="https://via.placeholder.com/200" alt="evidence">
+      </div>
 
-        <label>Supporting Evidence (required)</label>
-        <input type="file" id="evidence" accept="image/*" required>
-
-        <button type="submit">Submit</button>
-      </form>
+      <div class="card approved">
+        <h3>Order #12346</h3>
+        <p><strong>Status:</strong> Approved</p>
+        <p><strong>Reason:</strong> Wrong Item</p>
+        <img src="https://via.placeholder.com/200" alt="evidence">
+      </div>
     </section>
-
-    <!-- REQUEST HISTORY -->
-    <section id="history" class="section">
-      <h3>Request History</h3>
-      <div id="historyList"></div>
-    </section>
-
-    <!-- CUSTOMER SUPPORT -->
-    <section id="support" class="section">
-      <h3>Customer Support</h3>
-      <form id="queryForm">
-        <textarea id="queryText" placeholder="Describe your issue" required></textarea>
-        <label>Supporting Evidence (optional)</label>
-        <input type="file" id="queryImage" accept="image/*">
-        <button type="submit">Submit Query</button>
-      </form>
-    </section>
-
-    <!-- PENDING REQUESTS -->
-    <section id="pendingRequests" class="section">
-      <h3>Pending Requests</h3>
-      <div id="pendingList"></div>
-    </section>
-
-    <!-- PENDING QUERIES -->
-    <section id="pendingQueries" class="section">
-      <h3>Pending Queries</h3>
-      <div id="queryList"></div>
-    </section>
-
-    <!-- REFUND STATUS -->
-    <section id="refundStatus" class="section">
-      <h3>Refund Status</h3>
-      <div id="refundList"></div>
-    </section>
-
   </main>
+
 </div>
 
-<script src="js/app.js"></script>
 </body>
 </html>
