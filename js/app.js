@@ -1,107 +1,145 @@
+/* ---------- AUTH CHECK ---------- */
 const authUser = JSON.parse(sessionStorage.getItem("authUser"));
 if (!authUser) window.location.replace("login.html");
 
-document.getElementById("roleTitle").innerText =
-  authUser.role === "support"
-    ? "Customer Support Dashboard"
-    : authUser.role === "admin"
-    ? "Admin Dashboard"
-    : "User Dashboard";
+/* ---------- ROLE TITLE ---------- */
+const roleMap = {
+  user: "User Dashboard",
+  support: "Customer Support Dashboard",
+  admin: "Admin Dashboard"
+};
 
+document.getElementById("roleTitle").innerText = roleMap[authUser.role];
+
+/* ---------- ELEMENTS ---------- */
+const form = document.getElementById("returnForm");
 const userSection = document.getElementById("userSection");
-const supportSection = document.getElementById("supportSection");
-const querySection = document.getElementById("querySection");
-const requestView = document.getElementById("requestView");
+
+const pendingList = document.getElementById("pendingList");
+const processedList = document.getElementById("processedList");
 
 let requests = JSON.parse(localStorage.getItem("requests")) || [];
-let queries = JSON.parse(localStorage.getItem("queries")) || [];
 
-/* Role-based visibility */
-if (authUser.role === "user") {
-  supportSection.style.display = "none";
-}
-if (authUser.role === "admin") {
+/* ---------- ROLE VISIBILITY ---------- */
+if (authUser.role !== "user") {
   userSection.style.display = "none";
-  querySection.style.display = "none";
-  supportSection.style.display = "none";
-}
-if (authUser.role === "support") {
-  userSection.style.display = "none";
-  querySection.style.display = "none";
 }
 
-/* ---------- SUPPORT QUERY SUBMISSION ---------- */
-document.getElementById("queryForm")?.addEventListener("submit", e => {
+/* ---------- USER: SUBMIT REQUEST ---------- */
+form?.addEventListener("submit", e => {
   e.preventDefault();
 
-  const text = document.getElementById("queryText").value;
+  const orderId = document.getElementById("orderId").value;
+  const reason = document.getElementById("reason").value;
+  const comment = document.getElementById("comment").value;
+  const file = document.getElementById("evidence").files[0];
 
-  queries.push({
-    id: crypto.randomUUID(),
-    user: authUser.email,
-    text,
-    response: "",
-    status: "Pending",
-    time: new Date().toISOString()
-  });
+  if (requests.some(r => r.orderId === orderId)) {
+    alert("Duplicate Order ID detected");
+    return;
+  }
 
-  saveQueries();
-  e.target.reset();
+  if (!file) {
+    alert("Supporting evidence is required.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const request = {
+      id: crypto.randomUUID(),
+      orderId,
+      reason,
+      comment,
+      evidence: reader.result,
+      status: "Pending",
+      message: "",
+      user: authUser.email,
+      time: new Date().toISOString()
+    };
+
+    requests.push(request);
+    save();
+    form.reset();
+  };
+
+  reader.readAsDataURL(file);
 });
 
-/* ---------- RENDER QUERIES ---------- */
-function renderQueries() {
-  const pending = document.getElementById("pendingQueries");
-  const answered = document.getElementById("answeredQueries");
-  if (!pending || !answered) return;
+/* ---------- RENDER REQUESTS ---------- */
+function render() {
+  pendingList.innerHTML = "";
+  processedList.innerHTML = "";
 
-  pending.innerHTML = "";
-  answered.innerHTML = "";
+  requests.forEach(r => {
+    if (authUser.role === "user" && r.user !== authUser.email) return;
 
-  queries.forEach(q => {
+    let messageBlock = "";
+    if (authUser.role === "user" && r.message) {
+      messageBlock = `<div class="notification">${r.message}</div>`;
+    }
+
     const li = document.createElement("li");
+    li.className = r.status.toLowerCase();
+
     li.innerHTML = `
-      <strong>${q.user}</strong><br>
-      ${q.text}
+      <strong>Order ID:</strong> ${r.orderId}<br>
+      <strong>Reason:</strong> ${r.reason}<br>
+      <strong>Comment:</strong> ${r.comment || "—"}<br>
+      <strong>Status:</strong> ${r.status}<br>
+      ${messageBlock}
+      <img src="${r.evidence}" />
+
       ${
-        authUser.role === "support" && q.status === "Pending"
+        authUser.role === "admin" && r.status === "Pending"
           ? `<br>
-             <textarea placeholder="Response" id="resp-${q.id}"></textarea>
-             <button onclick="answerQuery('${q.id}')">Mark Answered</button>`
-          : ""
-      }
-      ${
-        q.status === "Answered"
-          ? `<div class="notification">Response: ${q.response}</div>`
+             <button onclick="approveRequest('${r.id}')">Approve</button>
+             <button onclick="rejectRequest('${r.id}')">Reject</button>`
           : ""
       }
     `;
 
-    q.status === "Pending"
-      ? pending.appendChild(li)
-      : answered.appendChild(li);
+    if (r.status === "Pending") {
+      pendingList.appendChild(li);
+    } else {
+      processedList.appendChild(li);
+    }
   });
 }
 
-function answerQuery(id) {
-  const q = queries.find(x => x.id === id);
-  const resp = document.getElementById(`resp-${id}`).value;
-  if (!q || !resp) return;
+/* ---------- ADMIN ACTIONS ---------- */
+function approveRequest(id) {
+  if (authUser.role !== "admin") return;
 
-  q.response = resp;
-  q.status = "Answered";
-  saveQueries();
+  const req = requests.find(r => r.id === id);
+  if (!req) return;
+
+  req.status = "Approved";
+  req.message = `Refund Initiated for Order #${req.orderId}. The payment will be credited to your respective bank account within 5–7 working days.`;
+  save();
 }
 
-function saveQueries() {
-  localStorage.setItem("queries", JSON.stringify(queries));
-  renderQueries();
+function rejectRequest(id) {
+  if (authUser.role !== "admin") return;
+
+  const req = requests.find(r => r.id === id);
+  if (!req) return;
+
+  req.status = "Rejected";
+  req.message = `Refund request for Order #${req.orderId} has been rejected after verification. Please contact customer support for further assistance.`;
+  save();
 }
 
-renderQueries();
+/* ---------- SAVE ---------- */
+function save() {
+  localStorage.setItem("requests", JSON.stringify(requests));
+  render();
+}
 
 /* ---------- LOGOUT ---------- */
 function logout() {
   sessionStorage.clear();
   window.location.replace("login.html");
 }
+
+render();

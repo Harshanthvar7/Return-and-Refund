@@ -2,20 +2,27 @@
 
 A secure, role-based web application prototype for managing product return and refund requests.
 
+## Roles
+- User
+- Customer Support
+- Admin
+
 ## Features
-- Secure login & session protection
-- Role-based access (User / Admin)
-- Return request submission with comments and evidence
-- Fraud prevention (duplicate order ID)
-- Controlled approval workflow
-- Status tracking (Pending / Approved / Rejected)
+- Secure login with session protection
+- Role-based access control
+- Return request submission with evidence and comments
+- Fraud prevention (duplicate Order ID detection)
+- Request segregation (Pending / Action Taken)
+- Admin approval and rejection workflow
+- User-only refund notification after approval
 
 ## Demo Credentials
 User: user@test.com / user123  
+Support: support@test.com / support123  
 Admin: admin@test.com / admin123  
 
 ## Deployment
-Hosted using GitHub and Netlify.
+Deployed using GitHub and Netlify.
 
 ## Note
-This is a functional prototype. In production, a centralized encrypted database and backend services would be implemented.
+This is a functional prototype. In a production environment, this system would be backed by encrypted databases, backend APIs, and payment gateway integrations.

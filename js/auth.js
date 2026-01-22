@@ -1,7 +1,7 @@
 const users = [
   { email: "user@test.com", password: "user123", role: "user" },
-  { email: "admin@test.com", password: "admin123", role: "admin" },
-  { email: "support@test.com", password: "support123", role: "support" }
+  { email: "support@test.com", password: "support123", role: "support" },
+  { email: "admin@test.com", password: "admin123", role: "admin" }
 ];
 
 document.getElementById("loginForm")?.addEventListener("submit", e => {
@@ -9,14 +9,13 @@ document.getElementById("loginForm")?.addEventListener("submit", e => {
 
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  const role = document.getElementById("role").value;
 
   const user = users.find(
-    u => u.email === email && u.password === password && u.role === role
+    u => u.email === email && u.password === password
   );
 
   if (!user) {
-    document.getElementById("error").innerText = "Invalid credentials or role";
+    document.getElementById("error").innerText = "Invalid credentials";
     return;
   }
 
