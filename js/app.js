@@ -1,140 +1,107 @@
-/* ---------- AUTH CHECK ---------- */
 const authUser = JSON.parse(sessionStorage.getItem("authUser"));
+if (!authUser) window.location.replace("login.html");
 
-if (!authUser) {
-  window.location.replace("login.html");
-}
-
-/* ---------- UI SETUP ---------- */
 document.getElementById("roleTitle").innerText =
-  authUser.role === "admin" ? "Admin Dashboard" : "User Dashboard";
+  authUser.role === "support"
+    ? "Customer Support Dashboard"
+    : authUser.role === "admin"
+    ? "Admin Dashboard"
+    : "User Dashboard";
 
-const form = document.getElementById("returnForm");
 const userSection = document.getElementById("userSection");
-
-const pendingList = document.getElementById("pendingList");
-const processedList = document.getElementById("processedList");
+const supportSection = document.getElementById("supportSection");
+const querySection = document.getElementById("querySection");
+const requestView = document.getElementById("requestView");
 
 let requests = JSON.parse(localStorage.getItem("requests")) || [];
+let queries = JSON.parse(localStorage.getItem("queries")) || [];
 
-/* Hide user form for admin */
+/* Role-based visibility */
+if (authUser.role === "user") {
+  supportSection.style.display = "none";
+}
 if (authUser.role === "admin") {
   userSection.style.display = "none";
+  querySection.style.display = "none";
+  supportSection.style.display = "none";
+}
+if (authUser.role === "support") {
+  userSection.style.display = "none";
+  querySection.style.display = "none";
 }
 
-/* ---------- SUBMIT REQUEST ---------- */
-form?.addEventListener("submit", e => {
+/* ---------- SUPPORT QUERY SUBMISSION ---------- */
+document.getElementById("queryForm")?.addEventListener("submit", e => {
   e.preventDefault();
 
-  const orderId = document.getElementById("orderId").value;
-  const reason = document.getElementById("reason").value;
-  const comment = document.getElementById("comment").value;
-  const file = document.getElementById("evidence").files[0];
+  const text = document.getElementById("queryText").value;
 
-  if (requests.some(r => r.orderId === orderId)) {
-    alert("Duplicate Order ID detected");
-    return;
-  }
+  queries.push({
+    id: crypto.randomUUID(),
+    user: authUser.email,
+    text,
+    response: "",
+    status: "Pending",
+    time: new Date().toISOString()
+  });
 
-  if (!file) {
-    alert("Supporting evidence is required.");
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    const request = {
-      id: crypto.randomUUID(),
-      orderId,
-      reason,
-      comment,
-      evidence: reader.result,
-      status: "Pending",
-      message: "",      // USER-ONLY notification
-      user: authUser.email,
-      time: new Date().toISOString()
-    };
-
-    requests.push(request);
-    save();
-    form.reset();
-  };
-
-  reader.readAsDataURL(file);
+  saveQueries();
+  e.target.reset();
 });
 
-/* ---------- RENDER REQUESTS ---------- */
-function render() {
-  pendingList.innerHTML = "";
-  processedList.innerHTML = "";
+/* ---------- RENDER QUERIES ---------- */
+function renderQueries() {
+  const pending = document.getElementById("pendingQueries");
+  const answered = document.getElementById("answeredQueries");
+  if (!pending || !answered) return;
 
-  requests.forEach(r => {
-    if (authUser.role === "user" && r.user !== authUser.email) return;
+  pending.innerHTML = "";
+  answered.innerHTML = "";
 
-    let messageBlock = "";
-    if (authUser.role === "user" && r.message) {
-      messageBlock = `<div class="notification">${r.message}</div>`;
-    }
-
+  queries.forEach(q => {
     const li = document.createElement("li");
-    li.className = r.status.toLowerCase();
-
     li.innerHTML = `
-      <strong>Order ID:</strong> ${r.orderId}<br>
-      <strong>Reason:</strong> ${r.reason}<br>
-      <strong>Comment:</strong> ${r.comment || "—"}<br>
-      <strong>Status:</strong> ${r.status}<br>
-      ${messageBlock}
-      <img src="${r.evidence}" />
-
+      <strong>${q.user}</strong><br>
+      ${q.text}
       ${
-        authUser.role === "admin" && r.status === "Pending"
+        authUser.role === "support" && q.status === "Pending"
           ? `<br>
-             <button onclick="approveRequest('${r.id}')">Approve</button>
-             <button onclick="rejectRequest('${r.id}')">Reject</button>`
+             <textarea placeholder="Response" id="resp-${q.id}"></textarea>
+             <button onclick="answerQuery('${q.id}')">Mark Answered</button>`
+          : ""
+      }
+      ${
+        q.status === "Answered"
+          ? `<div class="notification">Response: ${q.response}</div>`
           : ""
       }
     `;
 
-    if (r.status === "Pending") {
-      pendingList.appendChild(li);
-    } else {
-      processedList.appendChild(li);
-    }
+    q.status === "Pending"
+      ? pending.appendChild(li)
+      : answered.appendChild(li);
   });
 }
 
-/* ---------- ADMIN ACTIONS ---------- */
-function approveRequest(id) {
-  const req = requests.find(r => r.id === id);
-  if (!req) return;
+function answerQuery(id) {
+  const q = queries.find(x => x.id === id);
+  const resp = document.getElementById(`resp-${id}`).value;
+  if (!q || !resp) return;
 
-  req.status = "Approved";
-  req.message = `Refund Initiated for Order #${req.orderId}. The payment will be credited to your respective bank account within 5–7 working days.`;
-
-  save();
+  q.response = resp;
+  q.status = "Answered";
+  saveQueries();
 }
 
-function rejectRequest(id) {
-  const req = requests.find(r => r.id === id);
-  if (!req) return;
-
-  req.status = "Rejected";
-  req.message = `Refund request for Order #${req.orderId} has been rejected after verification. Please contact customer support for further assistance.`;
-
-  save();
+function saveQueries() {
+  localStorage.setItem("queries", JSON.stringify(queries));
+  renderQueries();
 }
 
-/* ---------- SAVE ---------- */
-function save() {
-  localStorage.setItem("requests", JSON.stringify(requests));
-  render();
-}
+renderQueries();
 
 /* ---------- LOGOUT ---------- */
 function logout() {
   sessionStorage.clear();
   window.location.replace("login.html");
 }
-
-render();
