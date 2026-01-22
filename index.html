@@ -2,8 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-
-  <!-- Prevent cache after logout -->
   <meta http-equiv="Cache-Control" content="no-store" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -21,7 +19,7 @@
   <main class="container">
     <h3 id="roleTitle"></h3>
 
-    <!-- USER SECTION -->
+    <!-- USER ONLY -->
     <section id="userSection">
       <h4>Create Return Request</h4>
 
@@ -35,24 +33,19 @@
           <option>Not Needed</option>
         </select>
 
-        <textarea id="comment" placeholder="Add a comment (optional)"></textarea>
+        <textarea id="comment" placeholder="Add a comment"></textarea>
 
-        <label class="evidence-label">
-          Please provide supporting evidence (image):
-        </label>
+        <label>Please provide supporting evidence:</label>
         <input type="file" id="evidence" accept="image/*" required />
 
-        <button type="submit">Submit Request</button>
+        <button type="submit">Submit</button>
       </form>
     </section>
 
-    <!-- REQUEST VIEW -->
+    <!-- ALL ROLES VIEW -->
     <section>
-      <h4 id="pendingTitle">Pending Requests</h4>
-      <ul id="pendingList"></ul>
-
-      <h4 id="processedTitle">Action Taken Requests</h4>
-      <ul id="processedList"></ul>
+      <h4>Requests</h4>
+      <ul id="requestList"></ul>
     </section>
   </main>
 
