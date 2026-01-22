@@ -4,22 +4,26 @@ const users = [
   { email: "finance@test.com", password: "finance123", role: "finance" }
 ];
 
-document.getElementById("loginForm").addEventListener("submit", e => {
+document.getElementById("loginForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
-  const email = email.value;
-  const password = password.value;
-  const role = role.value;
+  const emailInput = document.getElementById("email").value;
+  const passwordInput = document.getElementById("password").value;
+  const roleInput = document.getElementById("role").value;
 
-  const found = users.find(
-    u => u.email === email && u.password === password && u.role === role
+  const user = users.find(
+    u =>
+      u.email === emailInput &&
+      u.password === passwordInput &&
+      u.role === roleInput
   );
 
-  if (!found) {
-    document.getElementById("error").innerText = "Invalid credentials";
+  if (!user) {
+    document.getElementById("error").innerText =
+      "Invalid email, password, or role";
     return;
   }
 
-  sessionStorage.setItem("authUser", JSON.stringify(found));
+  sessionStorage.setItem("authUser", JSON.stringify(user));
   window.location.href = "index.html";
 });
