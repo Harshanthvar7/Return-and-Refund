@@ -11,44 +11,80 @@
 </head>
 <body>
 
-  <nav>
-    <h2>Return & Refund System</h2>
-    <button onclick="logout()">Logout</button>
-  </nav>
+<nav>
+  <h2>Return & Refund System</h2>
+  <button onclick="logout()">Logout</button>
+</nav>
 
-  <main class="container">
-    <h3 id="roleTitle"></h3>
+<div class="container">
 
-    <!-- USER ONLY -->
-    <section id="userSection">
-      <h4>Create Return Request</h4>
+  <h3 id="roleTitle"></h3>
 
-      <form id="returnForm">
-        <input type="text" id="orderId" placeholder="Order ID" required />
+  <!-- DASHBOARD MENU -->
+  <div class="menu">
+    <button onclick="showSection('create')" id="menuCreate">Create Request</button>
+    <button onclick="showSection('history')">Request History</button>
+    <button onclick="showSection('support')" id="menuSupport">Customer Support</button>
+    <button onclick="showSection('pending')" id="menuPending">Pending Requests</button>
+    <button onclick="showSection('queries')" id="menuQueries">Query History</button>
+    <button onclick="showSection('refunds')" id="menuRefunds">Refund Status</button>
+  </div>
 
-        <select id="reason" required>
-          <option value="">Select Reason</option>
-          <option>Damaged Product</option>
-          <option>Wrong Item</option>
-          <option>Not Needed</option>
-        </select>
+  <!-- CREATE REQUEST (USER) -->
+  <section id="create" class="section">
+    <h4>Create Return Request</h4>
+    <form id="returnForm">
+      <input id="orderId" placeholder="Order ID" required />
+      <select id="reason" required>
+        <option value="">Select Reason</option>
+        <option>Damaged</option>
+        <option>Wrong Item</option>
+        <option>Not Needed</option>
+      </select>
+      <textarea id="comment" placeholder="Comment"></textarea>
+      <label>Supporting Evidence (optional)</label>
+      <input type="file" id="evidence" accept="image/*">
+      <button type="submit">Submit</button>
+    </form>
+  </section>
 
-        <textarea id="comment" placeholder="Add a comment"></textarea>
+  <!-- REQUEST HISTORY -->
+  <section id="history" class="section">
+    <h4>Request History</h4>
+    <ul id="historyList"></ul>
+  </section>
 
-        <label>Please provide supporting evidence:</label>
-        <input type="file" id="evidence" accept="image/*" required />
+  <!-- CUSTOMER SUPPORT -->
+  <section id="support" class="section">
+    <h4>Raise a Query</h4>
+    <form id="queryForm">
+      <textarea id="queryText" placeholder="Describe your issue" required></textarea>
+      <label>Optional Evidence</label>
+      <input type="file" id="queryImage" accept="image/*">
+      <button type="submit">Submit Query</button>
+    </form>
+  </section>
 
-        <button type="submit">Submit</button>
-      </form>
-    </section>
+  <!-- PENDING REQUESTS -->
+  <section id="pending" class="section">
+    <h4>Pending Requests</h4>
+    <ul id="pendingList"></ul>
+  </section>
 
-    <!-- ALL ROLES VIEW -->
-    <section>
-      <h4>Requests</h4>
-      <ul id="requestList"></ul>
-    </section>
-  </main>
+  <!-- QUERY HISTORY -->
+  <section id="queries" class="section">
+    <h4>Query History</h4>
+    <ul id="queryList"></ul>
+  </section>
 
-  <script src="js/app.js"></script>
+  <!-- REFUND STATUS -->
+  <section id="refunds" class="section">
+    <h4>Refund Status</h4>
+    <ul id="refundList"></ul>
+  </section>
+
+</div>
+
+<script src="js/app.js"></script>
 </body>
 </html>

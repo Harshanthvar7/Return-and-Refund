@@ -1,154 +1,158 @@
-/* ---------- AUTH CHECK ---------- */
+/* ---------- AUTH ---------- */
 const authUser = JSON.parse(sessionStorage.getItem("authUser"));
-if (!authUser) window.location.replace("login.html");
+if (!authUser) location.replace("login.html");
 
 /* ---------- ROLE TITLE ---------- */
-const roleMap = {
+const titles = {
   user: "User Dashboard",
   cs: "Customer Service Dashboard",
   finance: "Finance Admin Dashboard"
 };
+document.getElementById("roleTitle").innerText = titles[authUser.role];
 
-document.getElementById("roleTitle").innerText = roleMap[authUser.role];
-
-/* ---------- ELEMENTS ---------- */
-const form = document.getElementById("returnForm");
-const userSection = document.getElementById("userSection");
-const list = document.getElementById("requestList");
-
+/* ---------- STORAGE ---------- */
 let requests = JSON.parse(localStorage.getItem("requests")) || [];
+let queries = JSON.parse(localStorage.getItem("queries")) || [];
 
-/* ---------- UI VISIBILITY ---------- */
-if (authUser.role !== "user") {
-  userSection.style.display = "none";
+/* ---------- MENU CONTROL ---------- */
+function showSection(id) {
+  document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+  document.getElementById(id).style.display = "block";
 }
 
-/* ---------- USER SUBMISSION ---------- */
-form?.addEventListener("submit", e => {
+/* ---------- MENU VISIBILITY ---------- */
+const hide = id => document.getElementById(id).style.display = "none";
+
+if (authUser.role === "user") {
+  hide("menuPending");
+  hide("menuQueries");
+  hide("menuRefunds");
+} else if (authUser.role === "cs") {
+  hide("menuCreate");
+  hide("menuSupport");
+} else if (authUser.role === "finance") {
+  hide("menuCreate");
+  hide("menuSupport");
+  hide("menuQueries");
+}
+
+showSection("history");
+
+/* ---------- CREATE REQUEST ---------- */
+document.getElementById("returnForm")?.addEventListener("submit", e => {
   e.preventDefault();
 
-  const orderId = document.getElementById("orderId").value;
-  const reason = document.getElementById("reason").value;
-  const comment = document.getElementById("comment").value;
-  const file = document.getElementById("evidence").files[0];
-
-  if (requests.some(r => r.orderId === orderId)) {
-    alert("Duplicate Order ID");
-    return;
-  }
-
   const reader = new FileReader();
+  const file = evidence.files[0];
+
   reader.onload = () => {
     requests.push({
       id: crypto.randomUUID(),
-      orderId,
-      reason,
-      comment,
-      evidence: reader.result,
+      orderId: orderId.value,
+      reason: reason.value,
+      comment: comment.value,
+      evidence: reader.result || "",
       status: "Pending",
-      csRemark: "",
-      message: "",
+      user: authUser.email,
+      message: ""
+    });
+    save();
+    e.target.reset();
+  };
+
+  if (file) reader.readAsDataURL(file);
+  else reader.onload();
+});
+
+/* ---------- CUSTOMER QUERY ---------- */
+document.getElementById("queryForm")?.addEventListener("submit", e => {
+  e.preventDefault();
+
+  const reader = new FileReader();
+  const file = queryImage.files[0];
+
+  reader.onload = () => {
+    queries.push({
+      id: crypto.randomUUID(),
+      text: queryText.value,
+      image: reader.result || "",
       user: authUser.email,
       time: new Date().toISOString()
     });
-
     save();
-    form.reset();
+    e.target.reset();
   };
 
-  reader.readAsDataURL(file);
+  if (file) reader.readAsDataURL(file);
+  else reader.onload();
 });
 
 /* ---------- RENDER ---------- */
 function render() {
-  list.innerHTML = "";
+  historyList.innerHTML = "";
+  pendingList.innerHTML = "";
+  refundList.innerHTML = "";
+  queryList.innerHTML = "";
 
   requests.forEach(r => {
     if (authUser.role === "user" && r.user !== authUser.email) return;
 
-    let actions = "";
-
-    // Customer Service
-    if (authUser.role === "cs" && r.status === "Pending") {
-      actions = `
-        <textarea placeholder="CS Remark" onchange="addRemark('${r.id}', this.value)"></textarea>
-        <button onclick="markReviewed('${r.id}')">Mark Reviewed</button>
-      `;
-    }
-
-    // Finance Admin
-    if (authUser.role === "finance" && r.status === "Reviewed") {
-      actions = `
-        <button onclick="approve('${r.id}')">Approve</button>
-        <button onclick="reject('${r.id}')">Reject</button>
-      `;
-    }
-
-    // User message
-    let userMsg = "";
-    if (authUser.role === "user" && r.message) {
-      userMsg = `<div class="notification">${r.message}</div>`;
-    }
-
     const li = document.createElement("li");
-    li.className = r.status.toLowerCase();
     li.innerHTML = `
-      <strong>Order:</strong> ${r.orderId}<br>
-      <strong>Status:</strong> ${r.status}<br>
-      <strong>Comment:</strong> ${r.comment}<br>
-      ${r.csRemark ? `<strong>CS Remark:</strong> ${r.csRemark}<br>` : ""}
-      ${userMsg}
-      <img src="${r.evidence}" />
-      ${actions}
+      <b>${r.orderId}</b> | ${r.status}
+      ${r.message ? `<div class="notification">${r.message}</div>` : ""}
     `;
 
-    list.appendChild(li);
+    historyList.appendChild(li);
+
+    if (r.status === "Pending" && authUser.role !== "user") {
+      pendingList.appendChild(li.cloneNode(true));
+    }
+
+    if (authUser.role === "finance" && r.status === "Reviewed") {
+      const fli = li.cloneNode(true);
+      fli.innerHTML += `
+        <button onclick="approve('${r.id}')">Approve</button>
+        <button onclick="reject('${r.id}')">Reject</button>`;
+      refundList.appendChild(fli);
+    }
   });
-}
 
-/* ---------- CS ACTIONS ---------- */
-function addRemark(id, text) {
-  const r = requests.find(x => x.id === id);
-  if (r) r.csRemark = text;
-}
+  queries.forEach(q => {
+    if (authUser.role === "user" && q.user !== authUser.email) return;
 
-function markReviewed(id) {
-  const r = requests.find(x => x.id === id);
-  if (r) {
-    r.status = "Reviewed";
-    save();
-  }
+    const li = document.createElement("li");
+    li.innerHTML = `${q.text}`;
+    queryList.appendChild(li);
+  });
 }
 
 /* ---------- FINANCE ACTIONS ---------- */
 function approve(id) {
   const r = requests.find(x => x.id === id);
-  if (r) {
-    r.status = "Approved";
-    r.message = `Refund Initiated for Order #${r.orderId}. Amount will be credited within 5–7 working days.`;
-    save();
-  }
+  r.status = "Approved";
+  r.message = `Refund Initiated for Order #${r.orderId}. Amount will be credited within 5–7 working days.`;
+  save();
 }
 
 function reject(id) {
   const r = requests.find(x => x.id === id);
-  if (r) {
-    r.status = "Rejected";
-    r.message = `Refund request for Order #${r.orderId} was rejected after verification.`;
-    save();
-  }
+  r.status = "Rejected";
+  r.message = `Refund rejected for Order #${r.orderId}.`;
+  save();
 }
 
 /* ---------- SAVE ---------- */
 function save() {
   localStorage.setItem("requests", JSON.stringify(requests));
+  localStorage.setItem("queries", JSON.stringify(queries));
   render();
 }
 
 /* ---------- LOGOUT ---------- */
 function logout() {
   sessionStorage.clear();
-  window.location.replace("login.html");
+  location.replace("login.html");
 }
 
 render();
