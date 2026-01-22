@@ -11,78 +11,92 @@
 </head>
 <body>
 
-<nav>
-  <h2>Return & Refund System</h2>
-  <button onclick="logout()">Logout</button>
-</nav>
+<div class="layout">
 
-<div class="container">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2>Dashboard</h2>
+    <p id="roleTitle"></p>
 
-  <h3 id="roleTitle"></h3>
+    <ul id="menuUser">
+      <li onclick="showSection('create')">➕ Create Request</li>
+      <li onclick="showSection('history')">🕓 Request History</li>
+      <li onclick="showSection('support')">💬 Customer Support</li>
+    </ul>
 
-  <!-- DASHBOARD MENU -->
-  <div class="menu">
-    <button onclick="showSection('create')" id="menuCreate">Create Request</button>
-    <button onclick="showSection('history')">Request History</button>
-    <button onclick="showSection('support')" id="menuSupport">Customer Support</button>
-    <button onclick="showSection('pending')" id="menuPending">Pending Requests</button>
-    <button onclick="showSection('queries')" id="menuQueries">Query History</button>
-    <button onclick="showSection('refunds')" id="menuRefunds">Refund Status</button>
-  </div>
+    <ul id="menuCS">
+      <li onclick="showSection('pendingRequests')">📦 Pending Requests</li>
+      <li onclick="showSection('pendingQueries')">💬 Pending Queries</li>
+      <li onclick="showSection('refundStatus')">📄 Refund Status</li>
+    </ul>
 
-  <!-- CREATE REQUEST (USER) -->
-  <section id="create" class="section">
-    <h4>Create Return Request</h4>
-    <form id="returnForm">
-      <input id="orderId" placeholder="Order ID" required />
-      <select id="reason" required>
-        <option value="">Select Reason</option>
-        <option>Damaged</option>
-        <option>Wrong Item</option>
-        <option>Not Needed</option>
-      </select>
-      <textarea id="comment" placeholder="Comment"></textarea>
-      <label>Supporting Evidence (optional)</label>
-      <input type="file" id="evidence" accept="image/*">
-      <button type="submit">Submit</button>
-    </form>
-  </section>
+    <ul id="menuFinance">
+      <li onclick="showSection('pendingRequests')">📦 Reviewed Requests</li>
+      <li onclick="showSection('refundStatus')">💰 Refund Actions</li>
+    </ul>
 
-  <!-- REQUEST HISTORY -->
-  <section id="history" class="section">
-    <h4>Request History</h4>
-    <ul id="historyList"></ul>
-  </section>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </aside>
 
-  <!-- CUSTOMER SUPPORT -->
-  <section id="support" class="section">
-    <h4>Raise a Query</h4>
-    <form id="queryForm">
-      <textarea id="queryText" placeholder="Describe your issue" required></textarea>
-      <label>Optional Evidence</label>
-      <input type="file" id="queryImage" accept="image/*">
-      <button type="submit">Submit Query</button>
-    </form>
-  </section>
+  <!-- MAIN CONTENT -->
+  <main class="content">
 
-  <!-- PENDING REQUESTS -->
-  <section id="pending" class="section">
-    <h4>Pending Requests</h4>
-    <ul id="pendingList"></ul>
-  </section>
+    <!-- CREATE REQUEST -->
+    <section id="create" class="section">
+      <h3>Create Return Request</h3>
+      <form id="returnForm">
+        <input id="orderId" placeholder="Order ID" required>
+        <select id="reason" required>
+          <option value="">Select Reason</option>
+          <option>Damaged Product</option>
+          <option>Wrong Item</option>
+          <option>Not Needed</option>
+        </select>
+        <textarea id="comment" placeholder="Comment"></textarea>
 
-  <!-- QUERY HISTORY -->
-  <section id="queries" class="section">
-    <h4>Query History</h4>
-    <ul id="queryList"></ul>
-  </section>
+        <label>Supporting Evidence (required)</label>
+        <input type="file" id="evidence" accept="image/*" required>
 
-  <!-- REFUND STATUS -->
-  <section id="refunds" class="section">
-    <h4>Refund Status</h4>
-    <ul id="refundList"></ul>
-  </section>
+        <button type="submit">Submit</button>
+      </form>
+    </section>
 
+    <!-- REQUEST HISTORY -->
+    <section id="history" class="section">
+      <h3>Request History</h3>
+      <div id="historyList"></div>
+    </section>
+
+    <!-- CUSTOMER SUPPORT -->
+    <section id="support" class="section">
+      <h3>Customer Support</h3>
+      <form id="queryForm">
+        <textarea id="queryText" placeholder="Describe your issue" required></textarea>
+        <label>Supporting Evidence (optional)</label>
+        <input type="file" id="queryImage" accept="image/*">
+        <button type="submit">Submit Query</button>
+      </form>
+    </section>
+
+    <!-- PENDING REQUESTS -->
+    <section id="pendingRequests" class="section">
+      <h3>Pending Requests</h3>
+      <div id="pendingList"></div>
+    </section>
+
+    <!-- PENDING QUERIES -->
+    <section id="pendingQueries" class="section">
+      <h3>Pending Queries</h3>
+      <div id="queryList"></div>
+    </section>
+
+    <!-- REFUND STATUS -->
+    <section id="refundStatus" class="section">
+      <h3>Refund Status</h3>
+      <div id="refundList"></div>
+    </section>
+
+  </main>
 </div>
 
 <script src="js/app.js"></script>

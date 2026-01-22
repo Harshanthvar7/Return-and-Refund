@@ -1,109 +1,71 @@
-* {
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-  }
-  
-  body {
-    margin: 0;
-    background: #f4f6f8;
-  }
-  
-  nav {
-    background: #111827;
-    color: white;
-    padding: 15px 30px;
+.layout {
     display: flex;
-    justify-content: space-between;
-  }
-  
-  .container {
-    padding: 30px;
-  }
-  
-  .center {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     height: 100vh;
   }
   
-  .login-box {
-    background: white;
-    padding: 30px;
-    width: 320px;
-    border-radius: 8px;
-  }
-  
-  input, select, textarea, button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-  }
-  
-  textarea {
-    resize: vertical;
-  }
-  
-  button {
-    background: #2563eb;
+  .sidebar {
+    width: 240px;
+    background: #111827;
     color: white;
-    border: none;
+    padding: 20px;
+  }
+  
+  .sidebar h2 {
+    margin-bottom: 10px;
+  }
+  
+  .sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+  }
+  
+  .sidebar li {
+    padding: 10px;
     cursor: pointer;
   }
   
-  button:hover {
-    background: #1e40af;
+  .sidebar li:hover {
+    background: #1f2933;
   }
   
-  .error {
-    color: red;
-    margin-top: 10px;
+  .logout-btn {
+    margin-top: auto;
+    width: 100%;
+    padding: 10px;
+    background: #ef4444;
+    border: none;
+    color: white;
+    cursor: pointer;
   }
   
-  ul {
-    list-style: none;
-    padding: 0;
+  .content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
   }
   
-  li {
+  .section {
+    display: none;
+  }
+  
+  .card {
     background: white;
-    padding: 12px;
-    margin-top: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
     border-left: 6px solid orange;
   }
   
-  .pending {
-    border-left-color: orange;
-  }
-  
-  .approved {
-    border-left-color: green;
-  }
-  
-  .rejected {
-    border-left-color: red;
-  }
-  
-  img {
+  .card img {
+    max-width: 220px;
     margin-top: 10px;
-    max-width: 200px;
     border-radius: 6px;
   }
-  .evidence-label {
+  
+  .notification {
+    background: #ecfeff;
+    padding: 8px;
     margin-top: 10px;
-    display: block;
-    font-size: 14px;
-    color: #374151;
+    border-left: 4px solid #0ea5e9;
   }
   
-  h4 {
-    margin-top: 30px;
-  }
-  .notification {
-    margin-top: 10px;
-    padding: 10px;
-    background: #ecfeff;
-    border-left: 4px solid #0ea5e9;
-    font-size: 14px;
-    border-radius: 4px;
-  }    
