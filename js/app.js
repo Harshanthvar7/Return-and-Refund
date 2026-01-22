@@ -1,237 +1,124 @@
-/* =========================
-   AUTH & ROLE SETUP
-========================= */
+/* ---------- AUTH ---------- */
 const authUser = JSON.parse(sessionStorage.getItem("authUser"));
 if (!authUser) location.replace("login.html");
 
-const roleTitleMap = {
-  user: "User Dashboard",
-  cs: "Customer Service Dashboard",
-  finance: "Finance Admin Dashboard"
-};
+/* ---------- ELEMENT SAFETY ---------- */
+const $ = id => document.getElementById(id);
 
-document.getElementById("roleTitle").innerText =
-  roleTitleMap[authUser.role];
+/* ---------- ROLE TITLE ---------- */
+$("roleTitle").innerText =
+  authUser.role === "user"
+    ? "User Dashboard"
+    : authUser.role === "cs"
+    ? "Customer Service Dashboard"
+    : "Finance Admin Dashboard";
 
-/* =========================
-   DATA STORES
-========================= */
+/* ---------- DATA ---------- */
 let requests = JSON.parse(localStorage.getItem("requests")) || [];
 let queries = JSON.parse(localStorage.getItem("queries")) || [];
 
-/* =========================
-   MENU VISIBILITY
-========================= */
-menuUser.style.display = authUser.role === "user" ? "block" : "none";
-menuCS.style.display = authUser.role === "cs" ? "block" : "none";
-menuFinance.style.display = authUser.role === "finance" ? "block" : "none";
+/* ---------- MENU VISIBILITY ---------- */
+$("menuUser").style.display = authUser.role === "user" ? "block" : "none";
+$("menuCS").style.display = authUser.role === "cs" ? "block" : "none";
+$("menuFinance").style.display = authUser.role === "finance" ? "block" : "none";
 
-/* =========================
-   SECTION CONTROL
-========================= */
+/* ---------- SECTION CONTROL ---------- */
 function showSection(id) {
-  document.querySelectorAll(".section").forEach(
-    sec => (sec.style.display = "none")
-  );
-  document.getElementById(id).style.display = "block";
+  document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+  const sec = $(id);
+  if (sec) sec.style.display = "block";
 }
 
-/* Default landing */
+/* ---------- DEFAULT LANDING ---------- */
 if (authUser.role === "user") showSection("history");
-if (authUser.role === "cs") showSection("pendingRequests");
-if (authUser.role === "finance") showSection("refundStatus");
+if (authUser.role === "cs") showSection("pending");
+if (authUser.role === "finance") showSection("reviewed");
 
-/* =========================
-   USER — CREATE REQUEST
-========================= */
-returnForm?.addEventListener("submit", e => {
+/* ---------- CREATE REQUEST ---------- */
+$("returnForm")?.addEventListener("submit", e => {
   e.preventDefault();
 
-  const file = evidence.files[0];
-  if (!file) {
-    alert("Supporting evidence is required.");
-    return;
-  }
+  const file = $("evidence").files[0];
+  if (!file) return alert("Evidence required");
 
   const reader = new FileReader();
   reader.onload = () => {
     requests.push({
       id: crypto.randomUUID(),
-      orderId: orderId.value,
-      reason: reason.value,
-      comment: comment.value,
+      orderId: $("orderId").value,
+      reason: $("reason").value,
+      comment: $("comment").value,
       evidence: reader.result,
       status: "Pending",
       user: authUser.email,
       message: "",
       time: Date.now()
     });
-
-    saveAndRender();
+    save();
     e.target.reset();
   };
-
   reader.readAsDataURL(file);
 });
 
-/* =========================
-   USER — CUSTOMER SUPPORT QUERY
-   (Evidence OPTIONAL)
-========================= */
-queryForm?.addEventListener("submit", e => {
-  e.preventDefault();
-
-  const file = queryImage.files[0];
-  const reader = new FileReader();
-
-  reader.onload = () => {
-    queries.push({
-      id: crypto.randomUUID(),
-      text: queryText.value,
-      image: reader.result || "",
-      user: authUser.email,
-      status: "Open",
-      time: Date.now()
-    });
-
-    saveAndRender();
-    e.target.reset();
-  };
-
-  if (file) reader.readAsDataURL(file);
-  else reader.onload();
-});
-
-/* =========================
-   RENDER ENGINE
-========================= */
+/* ---------- RENDER ---------- */
 function render() {
-  historyList.innerHTML = "";
-  pendingList.innerHTML = "";
-  refundList.innerHTML = "";
-  queryList.innerHTML = "";
+  $("historyList").innerHTML = "";
+  $("pendingList").innerHTML = "";
+  $("reviewedList").innerHTML = "";
 
-  historyList.className = "grid";
-  pendingList.className = "grid";
-  refundList.className = "grid";
-
-  /* ---------- USER VIEW ---------- */
-  if (authUser.role === "user") {
-    const priority = { Pending: 1, Reviewed: 2, Approved: 3, Rejected: 4 };
-
-    requests
-      .filter(r => r.user === authUser.email)
-      .sort((a, b) =>
-        priority[a.status] !== priority[b.status]
-          ? priority[a.status] - priority[b.status]
-          : b.time - a.time
-      )
-      .forEach(r => historyList.appendChild(buildCard(r)));
-  }
-
-  /* ---------- CUSTOMER SERVICE ---------- */
-  if (authUser.role === "cs") {
-    requests
-      .filter(r => r.status === "Pending")
-      .forEach(r => {
-        const card = buildCard(r);
-        card.innerHTML += `
-          <button onclick="markReviewed('${r.id}')">
-            Mark as Reviewed
-          </button>
-        `;
-        pendingList.appendChild(card);
-      });
-  }
-
-  /* ---------- FINANCE ADMIN ---------- */
-  if (authUser.role === "finance") {
-    requests
-      .filter(r => r.status === "Reviewed")
-      .forEach(r => {
-        const card = buildCard(r);
-        card.innerHTML += `
-          <button onclick="approve('${r.id}')">Approve</button>
-          <button onclick="reject('${r.id}')">Reject</button>
-        `;
-        refundList.appendChild(card);
-      });
-  }
-
-  /* ---------- QUERIES ---------- */
-  queries.forEach(q => {
-    if (authUser.role === "user" && q.user !== authUser.email) return;
-
+  requests.forEach(r => {
     const card = document.createElement("div");
-    card.className = "card";
+    card.className = `card ${r.status.toLowerCase()}`;
     card.innerHTML = `
-      <b>Query:</b> ${q.text}<br>
-      <b>User:</b> ${q.user}
-      ${q.image ? `<img src="${q.image}">` : ""}
+      <b>Order:</b> ${r.orderId}<br>
+      <b>Status:</b> ${r.status}<br>
+      <b>Reason:</b> ${r.reason}<br>
+      <b>Comment:</b> ${r.comment}
+      ${r.message ? `<p>${r.message}</p>` : ""}
+      <img src="${r.evidence}">
     `;
-    queryList.appendChild(card);
+
+    if (authUser.role === "user" && r.user === authUser.email) {
+      $("historyList").appendChild(card);
+    }
+
+    if (authUser.role === "cs" && r.status === "Pending") {
+      card.innerHTML += `<button onclick="review('${r.id}')">Mark Reviewed</button>`;
+      $("pendingList").appendChild(card);
+    }
+
+    if (authUser.role === "finance" && r.status === "Reviewed") {
+      card.innerHTML += `
+        <button onclick="approve('${r.id}')">Approve</button>
+        <button onclick="reject('${r.id}')">Reject</button>`;
+      $("reviewedList").appendChild(card);
+    }
   });
 }
 
-/* =========================
-   CARD BUILDER
-========================= */
-function buildCard(r) {
-  const card = document.createElement("div");
-  card.className = `card ${r.status.toLowerCase()}`;
-
-  card.innerHTML = `
-    <b>Order ID:</b> ${r.orderId}<br>
-    <b>Reason:</b> ${r.reason}<br>
-    <b>Comment:</b> ${r.comment}<br>
-    <b>Status:</b> ${r.status}
-    ${r.message ? `<div class="notification">${r.message}</div>` : ""}
-    <img src="${r.evidence}">
-  `;
-
-  return card;
-}
-
-/* =========================
-   WORKFLOW ACTIONS
-========================= */
-function markReviewed(id) {
+/* ---------- WORKFLOW ---------- */
+function review(id) {
   const r = requests.find(x => x.id === id);
-  if (!r) return;
-
   r.status = "Reviewed";
-  saveAndRender();
+  save();
 }
 
 function approve(id) {
   const r = requests.find(x => x.id === id);
-  if (!r) return;
-
   r.status = "Approved";
-  r.message =
-    `Refund Initiated for Order #${r.orderId}. ` +
-    `The amount will be credited to your bank account within 5–7 working days.`;
-
-  saveAndRender();
+  r.message = `Refund initiated. Amount credited in 5–7 working days.`;
+  save();
 }
 
 function reject(id) {
   const r = requests.find(x => x.id === id);
-  if (!r) return;
-
   r.status = "Rejected";
-  r.message =
-    `Refund request for Order #${r.orderId} was rejected after verification.`;
-
-  saveAndRender();
+  r.message = `Refund request rejected after verification.`;
+  save();
 }
 
-/* =========================
-   SAVE & LOGOUT
-========================= */
-function saveAndRender() {
+function save() {
   localStorage.setItem("requests", JSON.stringify(requests));
-  localStorage.setItem("queries", JSON.stringify(queries));
   render();
 }
 
@@ -240,5 +127,4 @@ function logout() {
   location.replace("login.html");
 }
 
-/* INITIAL RENDER */
 render();
