@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-
   <meta http-equiv="Cache-Control" content="no-store" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -25,32 +24,37 @@
       <h4>Create Return Request</h4>
       <form id="returnForm">
         <input type="text" id="orderId" placeholder="Order ID" required />
+
         <select id="reason" required>
           <option value="">Select Reason</option>
           <option>Damaged Product</option>
           <option>Wrong Item</option>
           <option>Not Needed</option>
         </select>
+
         <textarea id="comment" placeholder="Add a comment (optional)"></textarea>
-        <label class="evidence-label">Please provide supporting evidence (image):</label>
+
+        <label class="evidence-label">
+          Please provide supporting evidence (image):
+        </label>
         <input type="file" id="evidence" accept="image/*" required />
-        <button type="submit">Submit Request</button>
+
+        <button type="submit">Submit Return Request</button>
       </form>
     </section>
 
-    <!-- USER: QUERY SECTION -->
+    <!-- QUERY SYSTEM (USER + SUPPORT ONLY) -->
     <section id="querySection">
-      <h4>Contact Customer Support</h4>
+      <h4>Support Queries</h4>
       <form id="queryForm">
         <textarea id="queryText" placeholder="Enter your query here..." required></textarea>
         <button type="submit">Submit Query</button>
       </form>
-
       <ul id="queryList"></ul>
     </section>
 
-    <!-- ADMIN REQUEST VIEW -->
-    <section id="requestView">
+    <!-- REQUESTS (USER + ADMIN ONLY) -->
+    <section id="requestSection">
       <h4>Pending Requests</h4>
       <ul id="pendingList"></ul>
 
@@ -58,11 +62,6 @@
       <ul id="processedList"></ul>
     </section>
 
-    <!-- CUSTOMER SUPPORT QUERY VIEW -->
-    <section id="supportSection">
-      <h4>User Queries</h4>
-      <ul id="supportQueryList"></ul>
-    </section>
   </main>
 
   <script src="js/app.js"></script>
