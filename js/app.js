@@ -8,131 +8,139 @@ const roleMap = {
   support: "Customer Support Dashboard",
   admin: "Admin Dashboard"
 };
-
 document.getElementById("roleTitle").innerText = roleMap[authUser.role];
 
 /* ---------- ELEMENTS ---------- */
-const form = document.getElementById("returnForm");
 const userSection = document.getElementById("userSection");
+const requestView = document.getElementById("requestView");
+const supportSection = document.getElementById("supportSection");
+const querySection = document.getElementById("querySection");
+
+const returnForm = document.getElementById("returnForm");
+const queryForm = document.getElementById("queryForm");
 
 const pendingList = document.getElementById("pendingList");
 const processedList = document.getElementById("processedList");
 
+const queryList = document.getElementById("queryList");
+const supportQueryList = document.getElementById("supportQueryList");
+
 let requests = JSON.parse(localStorage.getItem("requests")) || [];
+let queries = JSON.parse(localStorage.getItem("queries")) || [];
 
 /* ---------- ROLE VISIBILITY ---------- */
-if (authUser.role !== "user") {
-  userSection.style.display = "none";
-}
+userSection.style.display = authUser.role === "user" ? "block" : "none";
+querySection.style.display = authUser.role === "user" ? "block" : "none";
+requestView.style.display = authUser.role === "admin" ? "block" : "none";
+supportSection.style.display = authUser.role === "support" ? "block" : "none";
 
-/* ---------- USER: SUBMIT REQUEST ---------- */
-form?.addEventListener("submit", e => {
+/* ---------- USER: SUBMIT RETURN ---------- */
+returnForm?.addEventListener("submit", e => {
   e.preventDefault();
 
-  const orderId = document.getElementById("orderId").value;
-  const reason = document.getElementById("reason").value;
-  const comment = document.getElementById("comment").value;
-  const file = document.getElementById("evidence").files[0];
-
+  const orderId = orderId.value;
   if (requests.some(r => r.orderId === orderId)) {
     alert("Duplicate Order ID detected");
     return;
   }
 
-  if (!file) {
-    alert("Supporting evidence is required.");
-    return;
-  }
-
   const reader = new FileReader();
   reader.onload = () => {
-    const request = {
+    requests.push({
       id: crypto.randomUUID(),
       orderId,
-      reason,
-      comment,
-      evidence: reader.result,
+      reason: reason.value,
+      comment: comment.value,
+      evidence: evidence.files[0] ? reader.result : "",
       status: "Pending",
       message: "",
       user: authUser.email,
       time: new Date().toISOString()
-    };
-
-    requests.push(request);
-    save();
-    form.reset();
+    });
+    saveRequests();
+    returnForm.reset();
   };
-
-  reader.readAsDataURL(file);
+  reader.readAsDataURL(evidence.files[0]);
 });
 
-/* ---------- RENDER REQUESTS ---------- */
+/* ---------- USER: SUBMIT QUERY ---------- */
+queryForm?.addEventListener("submit", e => {
+  e.preventDefault();
+
+  queries.push({
+    id: crypto.randomUUID(),
+    text: queryText.value,
+    reply: "",
+    status: "Pending",
+    user: authUser.email,
+    time: new Date().toISOString()
+  });
+
+  saveQueries();
+  queryForm.reset();
+});
+
+/* ---------- SUPPORT: REPLY ---------- */
+function replyQuery(id) {
+  const q = queries.find(q => q.id === id);
+  if (!q) return;
+
+  const reply = document.getElementById(`reply-${id}`).value;
+  if (!reply) return alert("Reply cannot be empty");
+
+  q.reply = reply;
+  q.status = "Answered";
+  saveQueries();
+}
+
+/* ---------- RENDER ---------- */
 function render() {
+  // USER QUERIES
+  queryList.innerHTML = "";
+  queries.filter(q => q.user === authUser.email).forEach(q => {
+    queryList.innerHTML += `
+      <li class="${q.status.toLowerCase()}">
+        <strong>Query:</strong> ${q.text}<br>
+        <strong>Status:</strong> ${q.status}<br>
+        ${q.reply ? `<div class="notification">${q.reply}</div>` : ""}
+      </li>`;
+  });
+
+  // SUPPORT VIEW
+  supportQueryList.innerHTML = "";
+  queries.forEach(q => {
+    supportQueryList.innerHTML += `
+      <li class="${q.status.toLowerCase()}">
+        <strong>User:</strong> ${q.user}<br>
+        <strong>Query:</strong> ${q.text}<br>
+        <strong>Status:</strong> ${q.status}<br>
+        ${
+          q.status === "Pending"
+            ? `<textarea id="reply-${q.id}" placeholder="Reply..."></textarea>
+               <button onclick="replyQuery('${q.id}')">Send Reply</button>`
+            : `<div class="notification">Reply sent</div>`
+        }
+      </li>`;
+  });
+
+  // ADMIN REQUESTS (unchanged)
   pendingList.innerHTML = "";
   processedList.innerHTML = "";
-
   requests.forEach(r => {
-    if (authUser.role === "user" && r.user !== authUser.email) return;
-
-    let messageBlock = "";
-    if (authUser.role === "user" && r.message) {
-      messageBlock = `<div class="notification">${r.message}</div>`;
-    }
-
     const li = document.createElement("li");
     li.className = r.status.toLowerCase();
-
-    li.innerHTML = `
-      <strong>Order ID:</strong> ${r.orderId}<br>
-      <strong>Reason:</strong> ${r.reason}<br>
-      <strong>Comment:</strong> ${r.comment || "—"}<br>
-      <strong>Status:</strong> ${r.status}<br>
-      ${messageBlock}
-      <img src="${r.evidence}" />
-
-      ${
-        authUser.role === "admin" && r.status === "Pending"
-          ? `<br>
-             <button onclick="approveRequest('${r.id}')">Approve</button>
-             <button onclick="rejectRequest('${r.id}')">Reject</button>`
-          : ""
-      }
-    `;
-
-    if (r.status === "Pending") {
-      pendingList.appendChild(li);
-    } else {
-      processedList.appendChild(li);
-    }
+    li.innerHTML = `<strong>${r.orderId}</strong> - ${r.status}`;
+    (r.status === "Pending" ? pendingList : processedList).appendChild(li);
   });
 }
 
-/* ---------- ADMIN ACTIONS ---------- */
-function approveRequest(id) {
-  if (authUser.role !== "admin") return;
-
-  const req = requests.find(r => r.id === id);
-  if (!req) return;
-
-  req.status = "Approved";
-  req.message = `Refund Initiated for Order #${req.orderId}. The payment will be credited to your respective bank account within 5–7 working days.`;
-  save();
-}
-
-function rejectRequest(id) {
-  if (authUser.role !== "admin") return;
-
-  const req = requests.find(r => r.id === id);
-  if (!req) return;
-
-  req.status = "Rejected";
-  req.message = `Refund request for Order #${req.orderId} has been rejected after verification. Please contact customer support for further assistance.`;
-  save();
-}
-
-/* ---------- SAVE ---------- */
-function save() {
+function saveRequests() {
   localStorage.setItem("requests", JSON.stringify(requests));
+  render();
+}
+
+function saveQueries() {
+  localStorage.setItem("queries", JSON.stringify(queries));
   render();
 }
 

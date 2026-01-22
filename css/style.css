@@ -105,3 +105,10 @@ img {
   font-size: 14px;
   color: #374151;
 }
+.pending {
+  border-left-color: orange;
+}
+
+.answered {
+  border-left-color: green;
+}
