@@ -1,58 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Return & Refund System</title>
+  <meta charset="UTF-8">
+  <title>RRMS Dashboard</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <div class="app">
 
-  <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="sidebar-header">
-      <h2>RRMS</h2>
-      <p class="subtitle">Secure Workflow</p>
-    </div>
+    <h2>RRMS</h2>
+    <p id="roleTitle"></p>
 
-    <ul class="menu">
-      <li class="active">Dashboard</li>
-      <li>Requests</li>
-      <li>Support</li>
-      <li>Refunds</li>
+    <ul>
+      <li onclick="show('userSection')" id="userMenu">Create Request</li>
+      <li onclick="show('csSection')" id="csMenu">Pending Requests</li>
+      <li onclick="show('financeSection')" id="financeMenu">Reviewed Requests</li>
     </ul>
 
-    <button class="logout">Logout</button>
+    <button class="logout" onclick="logout()">Logout</button>
   </aside>
 
-  <!-- MAIN CONTENT -->
   <main class="main">
-    <header class="page-header">
-      <h1>Dashboard</h1>
-      <p>Overview of requests</p>
-    </header>
 
-    <!-- GRID AREA -->
-    <section class="grid">
-      <!-- SAMPLE CARD -->
-      <div class="card pending">
-        <h3>Order #12345</h3>
-        <p><strong>Status:</strong> Pending</p>
-        <p><strong>Reason:</strong> Damaged Product</p>
-        <img src="https://via.placeholder.com/200" alt="evidence">
-      </div>
+    <!-- USER -->
+    <section id="userSection" class="section">
+      <h3>Create Return Request</h3>
+      <form id="requestForm">
+        <input id="orderId" placeholder="Order ID" required>
+        <input id="reason" placeholder="Reason" required>
+        <input type="file" id="evidence" required>
+        <button type="submit">Submit</button>
+      </form>
 
-      <div class="card approved">
-        <h3>Order #12346</h3>
-        <p><strong>Status:</strong> Approved</p>
-        <p><strong>Reason:</strong> Wrong Item</p>
-        <img src="https://via.placeholder.com/200" alt="evidence">
-      </div>
+      <h3>Your Requests</h3>
+      <div id="userList" class="grid"></div>
     </section>
-  </main>
 
+    <!-- CS -->
+    <section id="csSection" class="section">
+      <h3>Pending Requests</h3>
+      <div id="csList" class="grid"></div>
+    </section>
+
+    <!-- FINANCE -->
+    <section id="financeSection" class="section">
+      <h3>Reviewed Requests</h3>
+      <div id="financeList" class="grid"></div>
+    </section>
+
+  </main>
 </div>
 
+<script src="js/app.js"></script>
 </body>
 </html>

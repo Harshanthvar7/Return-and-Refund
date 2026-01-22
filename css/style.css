@@ -1,122 +1,72 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Segoe UI", sans-serif;
-  }
-  
-  body {
-    background: #f4f6f8;
-  }
-  
-  /* APP LAYOUT */
-  .app {
-    display: flex;
-    height: 100vh;
-  }
-  
-  /* SIDEBAR */
-  .sidebar {
-    width: 260px;
-    background: #0f172a;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-  }
-  
-  .sidebar-header h2 {
-    font-size: 24px;
-  }
-  
-  .subtitle {
-    font-size: 12px;
-    color: #94a3b8;
-  }
-  
-  .menu {
-    list-style: none;
-    margin-top: 30px;
-    flex-grow: 1;
-  }
-  
-  .menu li {
-    padding: 12px 15px;
-    margin-bottom: 8px;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  
-  .menu li:hover,
-  .menu li.active {
-    background: #1e293b;
-  }
-  
-  .logout {
-    background: #ef4444;
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  
-  /* MAIN CONTENT */
-  .main {
-    flex: 1;
-    padding: 30px;
-    overflow-y: auto;
-  }
-  
-  .page-header h1 {
-    font-size: 28px;
-  }
-  
-  .page-header p {
-    color: #64748b;
-    margin-bottom: 20px;
-  }
-  
-  /* GRID */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-  }
-  
-  /* CARD */
-  .card {
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    border-left: 6px solid gray;
-  }
-  
-  .card h3 {
-    margin-bottom: 10px;
-  }
-  
-  .card img {
-    width: 100%;
-    max-width: 220px;
-    margin-top: 10px;
-    border-radius: 6px;
-  }
-  
-  /* STATUS COLORS */
-  .card.pending {
-    border-left-color: #f59e0b; /* orange */
-  }
-  
-  .card.reviewed {
-    border-left-color: #3b82f6; /* blue */
-  }
-  
-  .card.approved {
-    border-left-color: #22c55e; /* green */
-  }
-  
-  .card.rejected {
-    border-left-color: #ef4444; /* red */
-  }
-  
+* { box-sizing: border-box; font-family: Arial; }
+
+.login-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #0f172a;
+}
+
+.login-card {
+  background: white;
+  padding: 30px;
+  width: 300px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.login-card input, select, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.app { display: flex; height: 100vh; }
+
+.sidebar {
+  width: 220px;
+  background: #111827;
+  color: white;
+  padding: 20px;
+}
+
+.sidebar li {
+  list-style: none;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.sidebar li:hover { background: #1f2933; }
+
+.logout {
+  margin-top: 20px;
+  width: 100%;
+  background: red;
+  color: white;
+  padding: 10px;
+  border: none;
+}
+
+.main { flex: 1; padding: 20px; }
+
+.section { display: none; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.card {
+  background: white;
+  padding: 10px;
+  border-left: 5px solid gray;
+}
+
+.card.pending { border-color: orange; }
+.card.reviewed { border-color: blue; }
+.card.approved { border-color: green; }
+.card.rejected { border-color: red; }
+
+.card img { width: 100%; margin-top: 10px; }
