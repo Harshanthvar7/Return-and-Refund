@@ -50,6 +50,7 @@ form?.addEventListener("submit", e => {
       comment,
       evidence: reader.result,
       status: "Pending",
+      message: "",   // USER NOTIFICATION MESSAGE
       user: authUser.email,
       time: new Date().toISOString()
     };
@@ -78,13 +79,20 @@ function render() {
       <strong>Reason:</strong> ${r.reason}<br>
       <strong>Comment:</strong> ${r.comment || "—"}<br>
       <strong>Status:</strong> ${r.status}<br>
+
+      ${
+        r.message
+          ? `<div class="notification">${r.message}</div>`
+          : ""
+      }
+
       <img src="${r.evidence}" />
 
       ${
         authUser.role === "admin" && r.status === "Pending"
           ? `<br>
-             <button onclick="updateStatus('${r.id}','Approved')">Approve</button>
-             <button onclick="updateStatus('${r.id}','Rejected')">Reject</button>`
+             <button onclick="approveRequest('${r.id}')">Approve</button>
+             <button onclick="rejectRequest('${r.id}')">Reject</button>`
           : ""
       }
     `;
@@ -97,12 +105,24 @@ function render() {
   });
 }
 
-/* ---------- UPDATE STATUS ---------- */
-function updateStatus(id, status) {
+/* ---------- ADMIN ACTIONS ---------- */
+function approveRequest(id) {
   const req = requests.find(r => r.id === id);
   if (!req) return;
 
-  req.status = status;
+  req.status = "Approved";
+  req.message = `Refund Initiated for Order #${req.orderId}. The payment will be credited to your respective bank account within 5–7 working days.`;
+
+  save();
+}
+
+function rejectRequest(id) {
+  const req = requests.find(r => r.id === id);
+  if (!req) return;
+
+  req.status = "Rejected";
+  req.message = `Refund request for Order #${req.orderId} has been rejected after verification. Please contact customer support for further assistance.`;
+
   save();
 }
 

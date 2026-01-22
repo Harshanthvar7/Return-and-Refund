@@ -99,4 +99,11 @@
   h4 {
     margin-top: 30px;
   }
-    
+  .notification {
+    margin-top: 10px;
+    padding: 10px;
+    background: #ecfeff;
+    border-left: 4px solid #0ea5e9;
+    font-size: 14px;
+    border-radius: 4px;
+  }    
