@@ -3,26 +3,21 @@ const users = [
   { email: "admin@test.com", password: "admin123", role: "admin" }
 ];
 
-document.getElementById("loginForm").addEventListener("submit", function (e) {
+document.getElementById("loginForm")?.addEventListener("submit", e => {
   e.preventDefault();
 
-  const emailInput = document.getElementById("email").value;
-  const passwordInput = document.getElementById("password").value;
-  const roleInput = document.getElementById("role").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
   const user = users.find(
-    u =>
-      u.email === emailInput &&
-      u.password === passwordInput &&
-      u.role === roleInput
+    u => u.email === email && u.password === password
   );
 
   if (!user) {
-    document.getElementById("error").innerText =
-      "Invalid email, password, or role";
+    document.getElementById("error").innerText = "Invalid credentials";
     return;
   }
 
   sessionStorage.setItem("authUser", JSON.stringify(user));
-  window.location.href = "index.html";
+  window.location.replace("index.html");
 });

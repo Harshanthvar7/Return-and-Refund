@@ -3,78 +3,105 @@
   font-family: Arial, sans-serif;
 }
 
-.login-body {
+body {
+  margin: 0;
+  background: #f4f6f8;
+}
+
+nav {
+  background: #111827;
+  color: white;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.container {
+  padding: 30px;
+}
+
+.center {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #0f172a;
 }
 
-.login-card {
+.login-box {
   background: white;
   padding: 30px;
   width: 320px;
   border-radius: 8px;
-  text-align: center;
 }
 
-.login-card input,
-.login-card select,
-.login-card button {
+input, select, textarea, button {
   width: 100%;
   padding: 10px;
   margin-top: 10px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1e40af;
 }
 
 .error {
   color: red;
-}
-
-.app {
-  display: flex;
-  height: 100vh;
-}
-
-.sidebar {
-  width: 220px;
-  background: #111827;
-  color: white;
-  padding: 20px;
-}
-
-.logout {
-  width: 100%;
-  margin-top: 20px;
-  background: red;
-  color: white;
-  padding: 10px;
-  border: none;
-}
-
-.main {
-  flex: 1;
-  padding: 20px;
-  background: #f1f5f9;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-}
-
-.card {
-  background: white;
-  padding: 10px;
-  border-left: 5px solid gray;
-}
-
-.card.pending { border-color: orange; }
-.card.approved { border-color: green; }
-.card.rejected { border-color: red; }
-
-.card img {
-  width: 100%;
   margin-top: 10px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background: white;
+  padding: 12px;
+  margin-top: 12px;
+  border-left: 6px solid orange;
+}
+
+.pending {
+  border-left-color: orange;
+}
+
+.approved {
+  border-left-color: green;
+}
+
+.rejected {
+  border-left-color: red;
+}
+
+img {
+  margin-top: 10px;
+  max-width: 200px;
+  border-radius: 6px;
+}
+
+.notification {
+  margin-top: 10px;
+  padding: 10px;
+  background: #ecfeff;
+  border-left: 4px solid #0ea5e9;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.evidence-label {
+  margin-top: 10px;
+  display: block;
+  font-size: 14px;
+  color: #374151;
 }
