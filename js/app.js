@@ -50,7 +50,7 @@ form?.addEventListener("submit", e => {
       comment,
       evidence: reader.result,
       status: "Pending",
-      message: "",   // USER NOTIFICATION MESSAGE
+      message: "", // USER-ONLY notification
       user: authUser.email,
       time: new Date().toISOString()
     };
@@ -69,10 +69,18 @@ function render() {
   processedList.innerHTML = "";
 
   requests.forEach(r => {
+    // Users see only their own requests
     if (authUser.role === "user" && r.user !== authUser.email) return;
 
     const li = document.createElement("li");
     li.className = r.status.toLowerCase();
+
+    let messageBlock = "";
+
+    // 🔐 SHOW MESSAGE ONLY TO USER
+    if (authUser.role === "user" && r.message) {
+      messageBlock = `<div class="notification">${r.message}</div>`;
+    }
 
     li.innerHTML = `
       <strong>Order ID:</strong> ${r.orderId}<br>
@@ -80,11 +88,7 @@ function render() {
       <strong>Comment:</strong> ${r.comment || "—"}<br>
       <strong>Status:</strong> ${r.status}<br>
 
-      ${
-        r.message
-          ? `<div class="notification">${r.message}</div>`
-          : ""
-      }
+      ${messageBlock}
 
       <img src="${r.evidence}" />
 
