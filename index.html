@@ -37,16 +37,23 @@
 
         <textarea id="comment" placeholder="Add a comment (optional)"></textarea>
 
+        <!-- Supporting evidence instruction -->
+        <label class="evidence-label">
+          Please provide supporting evidence (image):
+        </label>
         <input type="file" id="evidence" accept="image/*" required />
 
         <button type="submit">Submit Request</button>
       </form>
     </section>
 
-    <!-- REQUEST LIST -->
+    <!-- ADMIN / USER REQUEST VIEW -->
     <section>
-      <h4>Requests</h4>
-      <ul id="requestList"></ul>
+      <h4 id="pendingTitle">Pending Requests</h4>
+      <ul id="pendingList"></ul>
+
+      <h4 id="processedTitle">Action Taken Requests</h4>
+      <ul id="processedList"></ul>
     </section>
   </main>
 

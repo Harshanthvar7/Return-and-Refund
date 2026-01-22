@@ -10,11 +10,14 @@ document.getElementById("roleTitle").innerText =
   authUser.role === "admin" ? "Admin Dashboard" : "User Dashboard";
 
 const form = document.getElementById("returnForm");
-const list = document.getElementById("requestList");
 const userSection = document.getElementById("userSection");
+
+const pendingList = document.getElementById("pendingList");
+const processedList = document.getElementById("processedList");
 
 let requests = JSON.parse(localStorage.getItem("requests")) || [];
 
+/* Hide user form for admin */
 if (authUser.role === "admin") {
   userSection.style.display = "none";
 }
@@ -34,7 +37,7 @@ form?.addEventListener("submit", e => {
   }
 
   if (!file) {
-    alert("Please upload evidence");
+    alert("Supporting evidence is required.");
     return;
   }
 
@@ -59,9 +62,10 @@ form?.addEventListener("submit", e => {
   reader.readAsDataURL(file);
 });
 
-/* ---------- RENDER ---------- */
+/* ---------- RENDER REQUESTS ---------- */
 function render() {
-  list.innerHTML = "";
+  pendingList.innerHTML = "";
+  processedList.innerHTML = "";
 
   requests.forEach(r => {
     if (authUser.role === "user" && r.user !== authUser.email) return;
@@ -85,11 +89,15 @@ function render() {
       }
     `;
 
-    list.appendChild(li);
+    if (r.status === "Pending") {
+      pendingList.appendChild(li);
+    } else {
+      processedList.appendChild(li);
+    }
   });
 }
 
-/* ---------- UPDATE ---------- */
+/* ---------- UPDATE STATUS ---------- */
 function updateStatus(id, status) {
   const req = requests.find(r => r.id === id);
   if (!req) return;
