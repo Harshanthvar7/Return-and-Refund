@@ -1,12 +1,12 @@
 # Secure Return & Refund Management System
 
-A secure, role-based web application for managing product return and refund requests.
+A secure, role-based web application prototype for managing product return and refund requests.
 
 ## Features
-- Secure login with session-based authentication
+- Secure login & session protection
 - Role-based access (User / Admin)
-- Return request submission with validation
-- Fraud prevention (duplicate order detection)
+- Return request submission with comments and evidence
+- Fraud prevention (duplicate order ID)
 - Controlled approval workflow
 - Status tracking (Pending / Approved / Rejected)
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
 
-  <!-- IMPORTANT: Prevent browser caching -->
+  <!-- Prevent cache after logout -->
   <meta http-equiv="Cache-Control" content="no-store" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -24,8 +24,10 @@
     <!-- USER SECTION -->
     <section id="userSection">
       <h4>Create Return Request</h4>
+
       <form id="returnForm">
         <input type="text" id="orderId" placeholder="Order ID" required />
+
         <select id="reason" required>
           <option value="">Select Reason</option>
           <option>Damaged Product</option>
@@ -33,8 +35,9 @@
           <option>Not Needed</option>
         </select>
 
-        <!-- Supporting evidence (prototype requirement) -->
-        <input type="file" accept="image/*" />
+        <textarea id="comment" placeholder="Add a comment (optional)"></textarea>
+
+        <input type="file" id="evidence" accept="image/*" required />
 
         <button type="submit">Submit Request</button>
       </form>

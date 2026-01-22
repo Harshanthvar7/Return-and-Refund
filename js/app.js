@@ -1,4 +1,4 @@
-/* ---------- AUTH CHECK (CRITICAL) ---------- */
+/* ---------- AUTH CHECK ---------- */
 const authUser = JSON.parse(sessionStorage.getItem("authUser"));
 
 if (!authUser) {
@@ -15,7 +15,6 @@ const userSection = document.getElementById("userSection");
 
 let requests = JSON.parse(localStorage.getItem("requests")) || [];
 
-/* Hide user form for admin */
 if (authUser.role === "admin") {
   userSection.style.display = "none";
 }
@@ -25,27 +24,42 @@ form?.addEventListener("submit", e => {
   e.preventDefault();
 
   const orderId = document.getElementById("orderId").value;
+  const reason = document.getElementById("reason").value;
+  const comment = document.getElementById("comment").value;
+  const file = document.getElementById("evidence").files[0];
 
   if (requests.some(r => r.orderId === orderId)) {
     alert("Duplicate Order ID detected");
     return;
   }
 
-  const request = {
-    id: crypto.randomUUID(),
-    orderId,
-    reason: document.getElementById("reason").value,
-    status: "Pending",
-    user: authUser.email,
-    time: new Date().toISOString()
+  if (!file) {
+    alert("Please upload evidence");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const request = {
+      id: crypto.randomUUID(),
+      orderId,
+      reason,
+      comment,
+      evidence: reader.result,
+      status: "Pending",
+      user: authUser.email,
+      time: new Date().toISOString()
+    };
+
+    requests.push(request);
+    save();
+    form.reset();
   };
 
-  requests.push(request);
-  save();
-  form.reset();
+  reader.readAsDataURL(file);
 });
 
-/* ---------- RENDER REQUESTS ---------- */
+/* ---------- RENDER ---------- */
 function render() {
   list.innerHTML = "";
 
@@ -56,19 +70,26 @@ function render() {
     li.className = r.status.toLowerCase();
 
     li.innerHTML = `
-      <strong>${r.orderId}</strong> | ${r.reason} | ${r.status}
-      ${authUser.role === "admin" && r.status === "Pending"
-        ? `<br>
-           <button onclick="updateStatus('${r.id}','Approved')">Approve</button>
-           <button onclick="updateStatus('${r.id}','Rejected')">Reject</button>`
-        : ""}
+      <strong>Order ID:</strong> ${r.orderId}<br>
+      <strong>Reason:</strong> ${r.reason}<br>
+      <strong>Comment:</strong> ${r.comment || "—"}<br>
+      <strong>Status:</strong> ${r.status}<br>
+      <img src="${r.evidence}" />
+
+      ${
+        authUser.role === "admin" && r.status === "Pending"
+          ? `<br>
+             <button onclick="updateStatus('${r.id}','Approved')">Approve</button>
+             <button onclick="updateStatus('${r.id}','Rejected')">Reject</button>`
+          : ""
+      }
     `;
 
     list.appendChild(li);
   });
 }
 
-/* ---------- UPDATE STATUS ---------- */
+/* ---------- UPDATE ---------- */
 function updateStatus(id, status) {
   const req = requests.find(r => r.id === id);
   if (!req) return;
