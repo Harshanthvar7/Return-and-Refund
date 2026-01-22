@@ -1,71 +1,39 @@
-.layout {
-    display: flex;
-    height: 100vh;
+/* ---------- GRID LAYOUT FOR REQUESTS ---------- */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
   
-  .sidebar {
-    width: 240px;
-    background: #111827;
-    color: white;
-    padding: 20px;
-  }
-  
-  .sidebar h2 {
-    margin-bottom: 10px;
-  }
-  
-  .sidebar ul {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 20px;
-  }
-  
-  .sidebar li {
-    padding: 10px;
-    cursor: pointer;
-  }
-  
-  .sidebar li:hover {
-    background: #1f2933;
-  }
-  
-  .logout-btn {
-    margin-top: auto;
-    width: 100%;
-    padding: 10px;
-    background: #ef4444;
-    border: none;
-    color: white;
-    cursor: pointer;
-  }
-  
-  .content {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-  }
-  
-  .section {
-    display: none;
-  }
-  
+  /* ---------- REQUEST CARD ---------- */
   .card {
-    background: white;
+    background: #ffffff;
     padding: 15px;
-    margin-bottom: 15px;
-    border-left: 6px solid orange;
+    border-radius: 6px;
+    border-left: 6px solid #f59e0b; /* default pending */
   }
   
+  /* ---------- STATUS COLORS ---------- */
+  .card.pending {
+    border-left-color: #f59e0b; /* orange */
+  }
+  
+  .card.approved {
+    border-left-color: #22c55e; /* green */
+  }
+  
+  .card.rejected {
+    border-left-color: #ef4444; /* red */
+  }
+  
+  .card.reviewed {
+    border-left-color: #3b82f6; /* blue */
+  }
+  
+  /* ---------- IMAGE ---------- */
   .card img {
     max-width: 220px;
     margin-top: 10px;
     border-radius: 6px;
-  }
-  
-  .notification {
-    background: #ecfeff;
-    padding: 8px;
-    margin-top: 10px;
-    border-left: 4px solid #0ea5e9;
   }
   
