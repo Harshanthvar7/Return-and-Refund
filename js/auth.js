@@ -1,7 +1,6 @@
 const users = [
   { email: "user@test.com", password: "user123", role: "user" },
-  { email: "cs@test.com", password: "cs123", role: "cs" },
-  { email: "finance@test.com", password: "finance123", role: "finance" }
+  { email: "admin@test.com", password: "admin123", role: "admin" }
 ];
 
 document.getElementById("loginForm").addEventListener("submit", function (e) {

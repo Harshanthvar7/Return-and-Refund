@@ -1,4 +1,7 @@
-* { box-sizing: border-box; font-family: Arial; }
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
 
 .login-body {
   display: flex;
@@ -11,18 +14,27 @@
 .login-card {
   background: white;
   padding: 30px;
-  width: 300px;
+  width: 320px;
   border-radius: 8px;
   text-align: center;
 }
 
-.login-card input, select, button {
+.login-card input,
+.login-card select,
+.login-card button {
   width: 100%;
   padding: 10px;
   margin-top: 10px;
 }
 
-.app { display: flex; height: 100vh; }
+.error {
+  color: red;
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+}
 
 .sidebar {
   width: 220px;
@@ -31,26 +43,20 @@
   padding: 20px;
 }
 
-.sidebar li {
-  list-style: none;
-  padding: 10px;
-  cursor: pointer;
-}
-
-.sidebar li:hover { background: #1f2933; }
-
 .logout {
-  margin-top: 20px;
   width: 100%;
+  margin-top: 20px;
   background: red;
   color: white;
   padding: 10px;
   border: none;
 }
 
-.main { flex: 1; padding: 20px; }
-
-.section { display: none; }
+.main {
+  flex: 1;
+  padding: 20px;
+  background: #f1f5f9;
+}
 
 .grid {
   display: grid;
@@ -65,8 +71,10 @@
 }
 
 .card.pending { border-color: orange; }
-.card.reviewed { border-color: blue; }
 .card.approved { border-color: green; }
 .card.rejected { border-color: red; }
 
-.card img { width: 100%; margin-top: 10px; }
+.card img {
+  width: 100%;
+  margin-top: 10px;
+}

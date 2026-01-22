@@ -1,34 +1,19 @@
 const authUser = JSON.parse(sessionStorage.getItem("authUser"));
-if (!authUser) location.href = "login.html";
+if (!authUser) window.location.href = "login.html";
 
-const roleTitle = document.getElementById("roleTitle");
-roleTitle.innerText =
-  authUser.role === "user" ? "User" :
-  authUser.role === "cs" ? "Customer Service" : "Finance Admin";
+document.getElementById("roleTitle").innerText =
+  authUser.role === "user" ? "User Dashboard" : "Admin Dashboard";
+
+const userSection = document.getElementById("userSection");
+const adminSection = document.getElementById("adminSection");
+
+userSection.style.display = authUser.role === "user" ? "block" : "none";
+adminSection.style.display = authUser.role === "admin" ? "block" : "none";
 
 let requests = JSON.parse(localStorage.getItem("requests")) || [];
 
-function show(id) {
-  document.querySelectorAll(".section").forEach(s => s.style.display = "none");
-  document.getElementById(id).style.display = "block";
-}
-
-document.getElementById("userMenu").style.display =
-  authUser.role === "user" ? "block" : "none";
-document.getElementById("csMenu").style.display =
-  authUser.role === "cs" ? "block" : "none";
-document.getElementById("financeMenu").style.display =
-  authUser.role === "finance" ? "block" : "none";
-
-show(
-  authUser.role === "user"
-    ? "userSection"
-    : authUser.role === "cs"
-    ? "csSection"
-    : "financeSection"
-);
-
-document.getElementById("requestForm")?.addEventListener("submit", e => {
+/* USER SUBMIT REQUEST */
+document.getElementById("requestForm")?.addEventListener("submit", function (e) {
   e.preventDefault();
 
   const reader = new FileReader();
@@ -37,7 +22,7 @@ document.getElementById("requestForm")?.addEventListener("submit", e => {
       id: Date.now(),
       orderId: orderId.value,
       reason: reason.value,
-      image: reader.result,
+      evidence: reader.result,
       status: "Pending",
       user: authUser.email
     });
@@ -47,49 +32,45 @@ document.getElementById("requestForm")?.addEventListener("submit", e => {
   reader.readAsDataURL(evidence.files[0]);
 });
 
+/* RENDER */
 function render() {
   userList.innerHTML = "";
-  csList.innerHTML = "";
-  financeList.innerHTML = "";
+  adminList.innerHTML = "";
 
   requests.forEach(r => {
     const card = document.createElement("div");
     card.className = "card " + r.status.toLowerCase();
     card.innerHTML = `
-      <b>${r.orderId}</b><br>
-      ${r.reason}<br>
-      Status: ${r.status}
-      <img src="${r.image}">
+      <b>Order:</b> ${r.orderId}<br>
+      <b>Reason:</b> ${r.reason}<br>
+      <b>Status:</b> ${r.status}
+      <img src="${r.evidence}">
     `;
 
-    if (authUser.role === "user" && r.user === authUser.email)
+    if (authUser.role === "user" && r.user === authUser.email) {
       userList.appendChild(card);
-
-    if (authUser.role === "cs" && r.status === "Pending") {
-      card.innerHTML += `<button onclick="review(${r.id})">Mark Reviewed</button>`;
-      csList.appendChild(card);
     }
 
-    if (authUser.role === "finance" && r.status === "Reviewed") {
+    if (authUser.role === "admin") {
       card.innerHTML += `
         <button onclick="approve(${r.id})">Approve</button>
         <button onclick="reject(${r.id})">Reject</button>
       `;
-      financeList.appendChild(card);
+      adminList.appendChild(card);
     }
   });
 }
 
-function review(id) {
-  requests.find(r => r.id === id).status = "Reviewed";
-  save();
-}
+/* ADMIN ACTIONS */
 function approve(id) {
-  requests.find(r => r.id === id).status = "Approved";
+  const r = requests.find(x => x.id === id);
+  r.status = "Approved";
   save();
 }
+
 function reject(id) {
-  requests.find(r => r.id === id).status = "Rejected";
+  const r = requests.find(x => x.id === id);
+  r.status = "Rejected";
   save();
 }
 
@@ -100,7 +81,7 @@ function save() {
 
 function logout() {
   sessionStorage.clear();
-  location.href = "login.html";
+  window.location.href = "login.html";
 }
 
 render();

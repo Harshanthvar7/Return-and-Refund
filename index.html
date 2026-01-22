@@ -13,41 +13,30 @@
     <h2>RRMS</h2>
     <p id="roleTitle"></p>
 
-    <ul>
-      <li onclick="show('userSection')" id="userMenu">Create Request</li>
-      <li onclick="show('csSection')" id="csMenu">Pending Requests</li>
-      <li onclick="show('financeSection')" id="financeMenu">Reviewed Requests</li>
-    </ul>
-
-    <button class="logout" onclick="logout()">Logout</button>
+    <button onclick="logout()" class="logout">Logout</button>
   </aside>
 
   <main class="main">
 
-    <!-- USER -->
-    <section id="userSection" class="section">
+    <!-- USER SECTION -->
+    <section id="userSection">
       <h3>Create Return Request</h3>
+
       <form id="requestForm">
         <input id="orderId" placeholder="Order ID" required>
-        <input id="reason" placeholder="Reason" required>
+        <input id="reason" placeholder="Reason for Return" required>
         <input type="file" id="evidence" required>
-        <button type="submit">Submit</button>
+        <button type="submit">Submit Request</button>
       </form>
 
       <h3>Your Requests</h3>
       <div id="userList" class="grid"></div>
     </section>
 
-    <!-- CS -->
-    <section id="csSection" class="section">
-      <h3>Pending Requests</h3>
-      <div id="csList" class="grid"></div>
-    </section>
-
-    <!-- FINANCE -->
-    <section id="financeSection" class="section">
-      <h3>Reviewed Requests</h3>
-      <div id="financeList" class="grid"></div>
+    <!-- ADMIN SECTION -->
+    <section id="adminSection">
+      <h3>All Return Requests</h3>
+      <div id="adminList" class="grid"></div>
     </section>
 
   </main>
